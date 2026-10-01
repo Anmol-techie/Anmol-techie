@@ -1,0 +1,66 @@
+name: Update lines-committed badge
+
+on:
+  schedule:
+    - cron: '17 4 * * *'   # daily, 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A fine-grained PAT with read-only "Contents" on all repositories.
+      # Without it the runner cannot clone private repos, and the badge would
+      # silently publish a large undercount -- so we skip the update instead.
+      - name: Check token
+        id: tok
+        env:
+          LOC_TOKEN: ${{ secrets.LOC_TOKEN }}
+        run: |
+          if [ -z "${LOC_TOKEN}" ]; then
+            echo "::warning::LOC_TOKEN secret is not set. Private repos are invisible to the runner, so the count would be a large undercount. Skipping badge update."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Count lines
+        if: steps.tok.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LOC_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 scripts/count-lines.py "$RUNNER_TEMP/loc" | tee /tmp/loc.txt
+          grep -q '^DONE$' /tmp/loc.txt || { echo "counter did not finish"; exit 1; }
+
+      - name: Rewrite badge
+        if: steps.tok.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          CODE=$(grep '^CODE additions' /tmp/loc.txt | sed 's/.*: //' | tr -d ' ')
+          PLAIN=$(printf '%s' "$CODE" | tr -d ',')
+          # Sanity gate: never publish an obviously broken value.
+          case "$PLAIN" in
+            ''|*[!0-9]*) echo "non-numeric count: '$CODE'"; exit 1 ;;
+          esac
+          if [ "$PLAIN" -le 1000 ]; then
+            echo "refusing to publish implausible count: '$CODE'"; exit 1
+          fi
+          python3 scripts/write-badge.py "$CODE"
+
+      - name: Commit if changed
+        if: steps.tok.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- README.md; then
+            echo "badge unchanged"; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qm "chore: refresh lines-committed badge [skip ci]" -- README.md
+          git push -q

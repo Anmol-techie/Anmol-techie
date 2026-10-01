@@ -15,6 +15,12 @@
   <a href="https://github.com/Anmol-techie"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </p>
 
+<p>
+  <!--LOC:START-->
+  <img src="https://img.shields.io/badge/Lines%20Committed-699%2C450-38BDF8?style=for-the-badge&logo=git&logoColor=white" alt="Lines committed"/>
+  <!--LOC:END-->
+</p>
+
 </div>
 
 ---
@@ -165,6 +171,8 @@ re-crawls, JSON-LD parsing into MongoDB, and cron-driven daily updates.
 ---
 
 ### 📊 GitHub Stats
+
+<sub>Lines committed counts additions I authored across all branches of my own repositories, deduplicated by commit and limited to source files — lockfiles, generated output and data dumps excluded. Refreshed daily.</sub>
 
 <div align="center">
 <img src="https://ghchart.rshah.org/38bdf8/Anmol-techie" alt="Anmol Jain's GitHub contribution graph" width="90%"/>
