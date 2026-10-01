@@ -15,11 +15,19 @@
   <a href="https://github.com/Anmol-techie"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"/></a>
 </p>
 
-<p>
-  <!--LOC:START-->
-  <img src="https://img.shields.io/badge/Lines%20Committed-699%2C450-38BDF8?style=for-the-badge&logo=git&logoColor=white" alt="Lines committed"/>
-  <!--LOC:END-->
-</p>
+<!--LOC:START-->
+
+<img src="assets/lines-committed.svg" alt="699,450 source lines committed" width="100%"/>
+
+<!--LOC:END-->
+
+**Why lines, not commits.** GitHub only ever counts commits, and a commit count is a weak proxy
+for output — I ship in large, complete units, averaging **~1,527 lines per commit** (5,067 in the
+EVOS monorepo). Counted by commits this looks like light activity; the line count is what actually
+moved.
+
+<sub>Additions I authored across all branches of my own repositories, deduplicated by commit and
+limited to source files — lockfiles, generated output and data dumps excluded. Refreshed daily.</sub>
 
 </div>
 
@@ -62,7 +70,7 @@ with a Postgres checkpointer, a 56-model Prisma schema, pgvector retrieval and B
 </td>
 <td width="33%" valign="top">
 
-**EVOS**
+**[EVOS](https://evosbase.com)**
 Wedding Operations Platform
 
 End-to-end operations suite for wedding vendors — **Next.js** admin surface over a **NestJS**
@@ -171,8 +179,6 @@ re-crawls, JSON-LD parsing into MongoDB, and cron-driven daily updates.
 ---
 
 ### 📊 GitHub Stats
-
-<sub>Lines committed counts additions I authored across all branches of my own repositories, deduplicated by commit and limited to source files — lockfiles, generated output and data dumps excluded. Refreshed daily.</sub>
 
 <div align="center">
 <img src="https://ghchart.rshah.org/38bdf8/Anmol-techie" alt="Anmol Jain's GitHub contribution graph" width="90%"/>

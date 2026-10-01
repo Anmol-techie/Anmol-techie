@@ -1,4 +1,4 @@
-name: Update lines-committed badge
+name: Update lines-committed figure
 
 on:
   schedule:
@@ -15,15 +15,16 @@ jobs:
       - uses: actions/checkout@v4
 
       # A fine-grained PAT with read-only "Contents" on all repositories.
-      # Without it the runner cannot clone private repos, and the badge would
-      # silently publish a large undercount -- so we skip the update instead.
+      # Without it the runner cannot clone private repos -- which are ~86% of
+      # the total -- and the figure would publish a large undercount. Skip
+      # instead of publishing a wrong number.
       - name: Check token
         id: tok
         env:
           LOC_TOKEN: ${{ secrets.LOC_TOKEN }}
         run: |
           if [ -z "${LOC_TOKEN}" ]; then
-            echo "::warning::LOC_TOKEN secret is not set. Private repos are invisible to the runner, so the count would be a large undercount. Skipping badge update."
+            echo "::warning::LOC_TOKEN secret is not set. Private repos are invisible to the runner, so the count would be a large undercount. Skipping update."
             echo "ready=false" >> "$GITHUB_OUTPUT"
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -38,29 +39,34 @@ jobs:
           python3 scripts/count-lines.py "$RUNNER_TEMP/loc" | tee /tmp/loc.txt
           grep -q '^DONE$' /tmp/loc.txt || { echo "counter did not finish"; exit 1; }
 
-      - name: Rewrite badge
+      - name: Rewrite figure
         if: steps.tok.outputs.ready == 'true'
         run: |
           set -euo pipefail
-          CODE=$(grep '^CODE additions' /tmp/loc.txt | sed 's/.*: //' | tr -d ' ')
-          PLAIN=$(printf '%s' "$CODE" | tr -d ',')
-          # Sanity gate: never publish an obviously broken value.
-          case "$PLAIN" in
-            ''|*[!0-9]*) echo "non-numeric count: '$CODE'"; exit 1 ;;
+          LINES=$(grep '^LINES_TOTAL=' /tmp/loc.txt | tail -1 | cut -d= -f2)
+          COMMITS=$(grep '^COMMITS_TOTAL=' /tmp/loc.txt | tail -1 | cut -d= -f2)
+          REPOS=$(grep '^REPOS_TOTAL=' /tmp/loc.txt | tail -1 | cut -d= -f2)
+          echo "parsed lines=$LINES commits=$COMMITS repos=$REPOS"
+
+          # Sanity gate: never publish an implausible figure.
+          case "$LINES" in
+            ''|*[!0-9]*) echo "non-numeric line count: '$LINES'"; exit 1 ;;
           esac
-          if [ "$PLAIN" -le 1000 ]; then
-            echo "refusing to publish implausible count: '$CODE'"; exit 1
+          if [ "$LINES" -le 1000 ]; then
+            echo "refusing to publish implausible count: '$LINES'"; exit 1
           fi
-          python3 scripts/write-badge.py "$CODE"
+
+          python3 scripts/write-badge.py "$LINES" "$COMMITS" "$REPOS"
 
       - name: Commit if changed
         if: steps.tok.outputs.ready == 'true'
         run: |
           set -euo pipefail
-          if git diff --quiet -- README.md; then
-            echo "badge unchanged"; exit 0
+          if git diff --quiet -- README.md assets/lines-committed.svg; then
+            echo "figure unchanged"; exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -qm "chore: refresh lines-committed badge [skip ci]" -- README.md
+          git add README.md assets/lines-committed.svg
+          git commit -qm "chore: refresh lines-committed figure [skip ci]"
           git push -q

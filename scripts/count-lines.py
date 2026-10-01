@@ -157,6 +157,11 @@ def main():
     if failed:
         print(f"clone failed ({len(failed)}) : {failed}")
     print(f"CODE additions (source files only, generated excluded) : {total_code:,}")
+    # Machine-readable values for the refresh workflow. Deliberately
+    # unformatted: a thousands separator lets a greedy sed stop mid-number.
+    print(f"LINES_TOTAL={total_code}")
+    print(f"COMMITS_TOTAL={len(raw_by_sha)}")
+    print(f"REPOS_TOTAL={len([r for r in per_repo if r['code'] > 0])}")
     print("DONE")
 
 
