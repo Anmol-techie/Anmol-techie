@@ -91,11 +91,12 @@ company signals into a structured, defensible narrative. Paired with
 <tr>
 <td valign="top">
 
-**[247meetings](https://github.com/Anmol-techie/247meetings)**
+**[247meetings](https://247meetings.com)**
 Outbound Campaign Engine
 
 **Next.js App Router** platform for outbound meeting campaigns — campaign builder, unified inbox,
 onboarding flow and dashboard, built on server actions with per-route loading and error boundaries.
+[Source](https://github.com/Anmol-techie/247meetings).
 
 </td>
 <td valign="top">
